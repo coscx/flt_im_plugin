@@ -1,0 +1,69 @@
+group = "com.coscx.flt_im_plugin"
+version = "1.0"
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath("com.android.tools.build:gradle:7.3.0")
+    }
+}
+
+rootProject.allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+apply plugin: "com.android.library"
+
+android {
+    if (project.android.hasProperty("namespace")) {
+        namespace = "com.coscx.flt_im_plugin"
+    }
+
+    compileSdk = 34
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        minSdk = 21
+    }
+
+    dependencies {
+        testImplementation("junit:junit:4.13.2")
+        testImplementation("org.mockito:mockito-core:5.0.0")
+    }
+
+    testOptions {
+        unitTests.all {
+            testLogging {
+               events "passed", "skipped", "failed", "standardOut", "standardError"
+               outputs.upToDateWhen {false}
+               showStandardStreams = true
+            }
+        }
+    }
+    useLibrary 'org.apache.http.legacy'
+}
+dependencies {
+    api 'com.github.coscx:asynctcp:2.7'
+    api 'com.github.coscx:imsdk:2.7'
+    api 'com.github.coscx:imlib:2.2'
+    api 'com.github.coscx:imkit:2.6'
+    implementation 'com.netflix.rxjava:rxjava-core:0.20.7'
+    implementation 'com.netflix.rxjava:rxjava-android:0.20.7'
+    implementation('com.fasterxml.jackson.core:jackson-core:2.11.1')
+    implementation('com.fasterxml.jackson.core:jackson-annotations:2.11.1')
+    implementation('com.fasterxml.jackson.core:jackson-databind:2.11.1')
+    implementation 'top.zibin:Luban:1.1.8'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+}
