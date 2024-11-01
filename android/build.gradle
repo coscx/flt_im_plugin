@@ -65,5 +65,5 @@ dependencies {
     implementation('com.fasterxml.jackson.core:jackson-databind:2.11.1')
     implementation 'top.zibin:Luban:1.1.8'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-
+    implementation project(path: ':libring')
 }

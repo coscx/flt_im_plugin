@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.os.HandlerThread;
 import android.text.TextUtils;
 
@@ -74,6 +75,10 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lm.sdk.LmAPI;
+import com.lm.sdk.inter.IResponseListener;
+import com.lm.sdk.utils.BLEUtils;
+import com.lm.sdk.utils.Logger;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -137,7 +142,7 @@ public class FltImPlugin implements FlutterPlugin,
         IMServiceObserver,
         GroupMessageObserver,
         SystemMessageObserver,
-        PeerMessageObserver, RTMessageObserver, CustomerMessageObserver {
+        PeerMessageObserver, RTMessageObserver, CustomerMessageObserver , IResponseListener {
     /// The MethodChannel that will the communication between Flutter and native Android
     ///
     /// This local reference serves to register the plugin with the Flutter Engine and unregister it
@@ -162,6 +167,7 @@ public class FltImPlugin implements FlutterPlugin,
     protected long groupID;
     protected String groupName;
     protected static final int REVOKE_EXPIRE = 120;
+    public String TAG = getClass().getSimpleName();
 
     public void initInstance(BinaryMessenger messeger, Context context) {
         channel = new MethodChannel(messeger, "flt_im_plugin");
@@ -240,6 +246,7 @@ public class FltImPlugin implements FlutterPlugin,
     /// DefaultLifecycleObserver
     @Override
     public void onCreate(@NonNull LifecycleOwner owner) {
+        LmAPI.addWLSCmdListener(activity, this);
 
     }
 
@@ -267,7 +274,7 @@ public class FltImPlugin implements FlutterPlugin,
 
     @Override
     public void onDestroy(@NonNull LifecycleOwner owner) {
-
+        LmAPI.removeWLSCmdListener(activity);
     }
 
     /// methodobserver
@@ -1725,6 +1732,172 @@ public class FltImPlugin implements FlutterPlugin,
     public void onCustomerMessageFailure(CustomerMessage msg) {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("type", "onCustomerMessageFailure");
+        map.put("result", convertToMap(msg));
+        this.callFlutter(resultSuccess(map));
+    }
+
+    @Override
+    public void lmBleConnecting(int i) {
+        String msg = "";
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("type", "onBleConnecting");
+        map.put("result", convertToMap(msg));
+        this.callFlutter(resultSuccess(map));
+    }
+
+    @Override
+    public void lmBleConnectionSucceeded(int i) {
+        String str = this.TAG;
+        Logger.show(str, "code=" + i);
+        if (i == 7) {
+            BLEUtils.setGetToken(true);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    LmAPI.SYNC_TIME();
+                }
+            }, 1000L);
+            String msg = "";
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put("type", "onBleConnectionSucceeded");
+            map.put("result", convertToMap(msg));
+            this.callFlutter(resultSuccess(map));
+        }
+
+    }
+
+    @Override
+    public void lmBleConnectionFailed(int i) {
+        BLEUtils.setGetToken(false);
+        String msg = "";
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("type", "BleConnectionFailed");
+        map.put("result", convertToMap(msg));
+        this.callFlutter(resultSuccess(map));
+    }
+
+    @Override
+    public void VERSION(byte b, String s) {
+        String msg = "";
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("type", "onVersion");
+        map.put("result", convertToMap(msg));
+        this.callFlutter(resultSuccess(map));
+    }
+
+    @Override
+    public void syncTime(byte b, byte[] bytes) {
+        String msg = "";
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("type", "onSyncTime");
+        map.put("result", convertToMap(msg));
+        this.callFlutter(resultSuccess(map));
+    }
+
+    @Override
+    public void stepCount(byte[] bytes, byte b) {
+        String msg = "";
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("type", "onStepCount");
+        map.put("result", convertToMap(msg));
+        this.callFlutter(resultSuccess(map));
+    }
+
+    @Override
+    public void battery(byte b, byte b1) {
+        String msg = "";
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("type", "onBattery");
+        map.put("result", convertToMap(msg));
+        this.callFlutter(resultSuccess(map));
+    }
+
+    @Override
+    public void timeOut() {
+        String msg = "";
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("type", "onTimeOut");
+        map.put("result", convertToMap(msg));
+        this.callFlutter(resultSuccess(map));
+    }
+
+    @Override
+    public void saveData(String s) {
+        String msg = "";
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("type", "onSaveData");
+        map.put("result", convertToMap(msg));
+        this.callFlutter(resultSuccess(map));
+    }
+
+    @Override
+    public void reset(byte[] bytes) {
+        String msg = "";
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("type", "onReset");
+        map.put("result", convertToMap(msg));
+        this.callFlutter(resultSuccess(map));
+    }
+
+    @Override
+    public void collection(byte[] bytes, byte b) {
+        String msg = "";
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("type", "onCollection");
+        map.put("result", convertToMap(msg));
+        this.callFlutter(resultSuccess(map));
+    }
+
+    @Override
+    public void BPwaveformData(byte b, byte b1, String s) {
+        String msg = "";
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("type", "onBpWaveformData");
+        map.put("result", convertToMap(msg));
+        this.callFlutter(resultSuccess(map));
+    }
+
+    @Override
+    public void onSport(int i, byte[] bytes) {
+        String msg = "";
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("type", "onSport");
+        map.put("result", convertToMap(msg));
+        this.callFlutter(resultSuccess(map));
+    }
+
+    @Override
+    public void breathLight(byte b) {
+        String msg = "";
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("type", "onBreathLight");
+        map.put("result", convertToMap(msg));
+        this.callFlutter(resultSuccess(map));
+    }
+
+    @Override
+    public void SET_HID(byte b) {
+        String msg = "";
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("type", "onSetHid");
+        map.put("result", convertToMap(msg));
+        this.callFlutter(resultSuccess(map));
+    }
+
+    @Override
+    public void GET_HID(byte b, byte b1, byte b2) {
+        String msg = "";
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("type", "onGetHid");
+        map.put("result", convertToMap(msg));
+        this.callFlutter(resultSuccess(map));
+    }
+
+    @Override
+    public void GET_HID_CODE(byte[] bytes) {
+        String msg = "";
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("type", "onGetHidCode");
         map.put("result", convertToMap(msg));
         this.callFlutter(resultSuccess(map));
     }
